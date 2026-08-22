@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "This is a modular monolith project generator for Express.js",
   "type": "module",
-  "main": "index.js",
   "bin": {
     "express-modular-monolith": "./bin/cli.js"
   },
