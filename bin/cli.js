@@ -2,10 +2,12 @@
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { exec } from "node:child_process";
+import { exec as execCallback } from "node:child_process";
+import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import { input, select } from "@inquirer/prompts";
 
+const exec = promisify(execCallback);
 
 const projectName = await input({
   message: "Project name:"
@@ -51,8 +53,24 @@ await fs.writeFile(
   JSON.stringify(packageJson, null, 2)
 );
 
+await exec("npx gitignore node", {
+  cwd: projectPath
+})
+
+await fs.writeFile(".env", "PORT=8000\n")
+
 await exec("npm install", {
   cwd: projectPath
 })
 
+await exec("git init", {
+  cwd: projectPath
+})
 
+await exec("git add .", {
+  cwd: projectPath
+})
+
+await exec(`git commit -m "Initial commit"`, {
+  cwd: projectPath
+})
