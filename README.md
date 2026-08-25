@@ -17,7 +17,7 @@ npx express-modular-monolith
 * Automatic Git repository initialization
 * Automatic initial Git commit
 
-## What's New in v1.1.3
+## What's New in v1.1.4
 
 * Added automatic `git init` after generating the project
 * Added automatic initial commit for the generated boilerplate
