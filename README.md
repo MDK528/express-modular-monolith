@@ -2,6 +2,11 @@
 
 Generate an Express modular monolith boilerplate with JavaScript or TypeScript.
 
+---
+
+> Note: This architecture is not opinionated or prescriptive. You can modify, extend, or completely rewrite it to fit your project's requirements
+
+
 ## Usage
 
 ```bash
