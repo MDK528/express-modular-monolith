@@ -5,27 +5,40 @@ import { fileURLToPath } from "node:url";
 import { exec as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "node:fs/promises";
-import { input, select } from "@inquirer/prompts";
+import process from "node:process";
+import { select } from "@inquirer/prompts";
+import { projectName, language, DB } from "./cliQuestions.js";
+import { dbPackages } from "./packages.js";
 
 const exec = promisify(execCallback);
 
-const projectName = await input({
-  message: "Project name:"
-});
+let modelTool;
 
-const language = await select({
-  message: "Choose a language:",
-  choices: [
-    {
-      name: "JavaScript",
-      value: "javascript"
-    },
-    {
-      name: "TypeScript",
-      value: "typescript"
-    }
-  ]
-});
+if (DB === "mongodb") {
+  modelTool = await select({
+    message: "Choose ODM:",
+    choices: [
+      {
+        name: "Mongoose",
+        value: "mongoose"
+      }
+    ]
+  });
+} else {
+  modelTool = await select({
+    message: "Choose ORM:",
+    choices: [
+      {
+        name: "Drizzle",
+        value: "drizzle"
+      },
+      {
+        name: "Prisma",
+        value: "prisma"
+      }
+    ]
+  });
+}
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +60,18 @@ if (projectName === ".") {
 }else{
   packageJson.name = projectName;
 }
+
+const selectedPackages = dbPackages[DB][modelTool];
+
+packageJson.dependencies = {
+  ...packageJson.dependencies,
+  ...selectedPackages.dependencies
+};
+
+packageJson.devDependencies = {
+  ...packageJson.devDependencies,
+  ...selectedPackages.devDependencies
+};
 
 await fs.writeFile(
   packageJsonPath,
