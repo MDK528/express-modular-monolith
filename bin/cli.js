@@ -9,8 +9,18 @@ import process from "node:process";
 import { select } from "@inquirer/prompts";
 import { projectName, language, DB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
+import ora from 'ora';
+
 
 const exec = promisify(execCallback);
+
+const spinnerDiscardingStdin = ora({
+	text: 'Loading unicorns',
+	spinner: process.argv[2],
+    color: 'red'
+});
+
+
 
 let modelTool;
 
@@ -40,6 +50,7 @@ if (DB === "mongodb") {
   });
 }
 
+spinnerDiscardingStdin.start("Installing all the Packages, wait for a while");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,3 +110,7 @@ await exec("git add .", {
 await exec(`git commit -m "Initial commit"`, {
   cwd: projectPath
 })
+
+// setTimeout(() => {
+spinnerDiscardingStdin.succeed("Packages successfully installed");
+// }, 1000);
