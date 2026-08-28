@@ -9,15 +9,15 @@ import process from "node:process";
 import { select } from "@inquirer/prompts";
 import { projectName, language, DB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
-import ora from 'ora';
+import ora from "ora";
 
 
 const exec = promisify(execCallback);
 
 const spinnerDiscardingStdin = ora({
-	text: 'Loading unicorns',
+	text: "Loading Packages",
 	spinner: process.argv[2],
-    color: 'red'
+    color: "cyan"
 });
 
 
@@ -49,7 +49,7 @@ if (DB === "mongodb") {
   });
 }
 
-spinnerDiscardingStdin.start("Installing all the Packages, wait for a while");
+spinnerDiscardingStdin.start("Installing required packages, wait for a while");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,15 +86,18 @@ packageJson.devDependencies = {
 await fs.writeFile(
   packageJsonPath,
   JSON.stringify(packageJson, null, 2)
-);
+).catch((err)=>{
+  spinnerDiscardingStdin.fail(err)
+  spinnerDiscardingStdin.start()
+});
 
 if (templatePath.includes("javascript")) {
   const appJsPath = path.join(projectPath, "/src/app.js")
   
   const targetLine = 8
   const insertedData = `app.get("/", (req, res)=> {
-    res.json("Server is up and running")
-  })`
+  res.json("Server is up and running")
+})`
 
   const data = await fs.readFile(appJsPath, "utf-8")
 
@@ -102,11 +105,12 @@ if (templatePath.includes("javascript")) {
   
   lines.splice(targetLine - 1, 0, insertedData);
   
-  const updatedContent = lines.join('\n');
+  const updatedContent = lines.join("\n");
   
-  fs.writeFile(appJsPath, updatedContent, 'utf8', (err) => {
+  fs.writeFile(appJsPath, updatedContent, "utf-8", (err) => {
     if (err) {
-      console.error('Error writing file:', err);
+      spinnerDiscardingStdin.fail(err?.message)
+      spinnerDiscardingStdin.start()
       return;
     }
   });
@@ -116,13 +120,13 @@ if (templatePath.includes("javascript")) {
 if (templatePath.includes("typescript")) {
   const appTsPath = path.join(projectPath, "/src/app.ts")
   
-  const targetLine = [2, 9]
+  const targetLine = [2, 8]
 
   const insertedData = [
     `import type { Express, Request, Response } from "express"`,
     `app.get("/", (req:Request, res:Response)=> {
-      res.json("Server is up and running")
-    })`
+  res.json("Server is up and running")
+})`
   ]
 
   const data = await fs.readFile(appTsPath, "utf-8")
@@ -133,11 +137,12 @@ if (templatePath.includes("typescript")) {
   lines.splice(1, 1)
   lines.splice(targetLine[1] , 0, insertedData[1]);
 
-  const updatedContent = lines.join('\n');
+  const updatedContent = lines.join("\n");
   
-  fs.writeFile(appTsPath, updatedContent, 'utf8', (err) => {
+  fs.writeFile(appTsPath, updatedContent, "utf-8", (err) => {
     if (err) {
-      console.error('Error writing file:', err);
+      spinnerDiscardingStdin.fail(err?.message)
+      spinnerDiscardingStdin.start()
       return;
     }
   });
@@ -146,24 +151,42 @@ if (templatePath.includes("typescript")) {
 
 await exec("npx gitignore node", {
   cwd: projectPath
-})
+}).catch((err)=>{
+  spinnerDiscardingStdin.fail("Failed to load .gitignore, run 'npx gitignore node in project root directory to load .gitignore")
+  spinnerDiscardingStdin.start()
+});
 
-await fs.writeFile(".env", "PORT=8000\n")
+await fs.writeFile(".env", "PORT=8000\n").catch((err)=>{
+  spinnerDiscardingStdin.fail("Failed to create .env file")
+  spinnerDiscardingStdin.start()
+});
 
 await exec("npm install", {
   cwd: projectPath
-})
+}).catch((err)=>{
+  spinnerDiscardingStdin.fail("Failed to load required packeages, run 'npm install' to load packages")
+  spinnerDiscardingStdin.start()
+});
 
 await exec("git init", {
   cwd: projectPath
-})
+}).catch((err)=>{
+  spinnerDiscardingStdin.fail("Failed to initialize the repo, run 'git init' to initialize the repo")
+  spinnerDiscardingStdin.start()
+});
 
 await exec("git add .", {
   cwd: projectPath
-})
+}).catch((err)=>{
+  spinnerDiscardingStdin.fail("Failed to get staged the files, run 'git add .' to get staged")
+  spinnerDiscardingStdin.start()
+});
 
 await exec(`git commit -m "Initial commit"`, {
   cwd: projectPath
-})
+}).catch((err)=>{
+  spinnerDiscardingStdin.fail(`Failed to commit, run 'git commit -m "Inital commit"`)
+  spinnerDiscardingStdin.start()
+});
 
 spinnerDiscardingStdin.succeed("Packages successfully installed");
