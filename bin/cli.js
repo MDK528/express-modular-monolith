@@ -21,7 +21,6 @@ const spinnerDiscardingStdin = ora({
 });
 
 
-
 let modelTool;
 
 if (DB === "mongodb") {
@@ -89,6 +88,32 @@ await fs.writeFile(
   JSON.stringify(packageJson, null, 2)
 );
 
+if (templatePath.includes("javascript")) {
+  const appJsPath = path.join(projectPath, "/src/app.js")
+  
+  const targetLine = 8
+  const insertedData = `app.get("/", (req, res)=> {
+    res.json("Server is up and running")
+  })`
+
+  const data = await fs.readFile(appJsPath, "utf-8")
+
+  const lines = data.split(/\r?\n/);
+  
+  lines.splice(targetLine - 1, 0, insertedData);
+  
+  const updatedContent = lines.join('\n');
+  
+  fs.writeFile(appJsPath, updatedContent, 'utf8', (err) => {
+    if (err) {
+      console.error('Error writing file:', err);
+      return;
+    }
+  });
+  
+}
+
+
 await exec("npx gitignore node", {
   cwd: projectPath
 })
@@ -111,6 +136,4 @@ await exec(`git commit -m "Initial commit"`, {
   cwd: projectPath
 })
 
-// setTimeout(() => {
 spinnerDiscardingStdin.succeed("Packages successfully installed");
-// }, 1000);
