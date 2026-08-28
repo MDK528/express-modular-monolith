@@ -1,5 +1,5 @@
-import 'dotenv/config'
-import app from './app.js'
+import "dotenv/config"
+import app from "./app.js"
 
 
 const PORT = process.env.PORT || 8000
@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 8000
             console.log(`Server is running at port ${PORT}`)
         })
     } catch (error) {
-        console.error('Failed to start server', error)
+        console.error("Failed to start server", error)
         process.exit(1)
     }
 })()
