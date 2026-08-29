@@ -130,7 +130,7 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) =>
             const serverJsData = await fs.readFile(serverJsPath, "utf-8");
             
             const targetLine = [3, 9]
-            const insertedData = [`import { connectionDB } from "../src/common/config/db.js"`,
+            const insertedData = [`import { connectionDB } from "./common/config/db.js"`,
                 `        await connectionDB()`];
             
             const lines = serverJsData.split(/\r?\n/);
@@ -193,7 +193,13 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) =>
         if (DB === "mongodb") {
             const dbTsPath = path.join(projectPath, "/src/common/config/db.ts")
 
-            fs.writeFile(dbTsPath, mongodbConBoilerplateCode, "utf-8", (err)=>{
+            const mongodbBoilerlines = mongodbConBoilerplateCode.split(/\r?\n/)
+            mongodbBoilerlines.splice(2, 1)
+            mongodbBoilerlines.splice(2, 0, 'const MONGODB_URI = process.env.MONGODB_URI!;')
+
+            const updatedmongodbBoiler = mongodbBoilerlines.join("\n")
+
+            fs.writeFile(dbTsPath, updatedmongodbBoiler, "utf-8", (err)=>{
                 if (err) {
                     spinnerDiscardingStdin.fail(err?.message)
                     spinnerDiscardingStdin.start()
@@ -205,7 +211,7 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) =>
             const serverTsData = await fs.readFile(serverTsPath, "utf-8");
             
             const targetLine = [3, 9]
-            const insertedData = [`import { connectionDB } from "../src/common/config/db.ts"`,
+            const insertedData = [`import { connectionDB } from "./common/config/db.ts"`,
                 `        await connectionDB()`];
             
             const lines = serverTsData.split(/\r?\n/);
