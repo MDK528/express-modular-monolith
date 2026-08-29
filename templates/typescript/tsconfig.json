@@ -32,6 +32,9 @@
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
 
+    // it's added to resolve import statements with .ts extension, you can configure your own way to fix the same issue
+    "rewriteRelativeImportExtensions": true,
+
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
