@@ -11,7 +11,7 @@ const spinnerDiscardingStdin = ora({
 });
 
 
-export const boilerPlateCodeSetUpForJS = async (projectPath) => {
+export const JSboilerPlateCodeSetUp = async (projectPath) => {
     const appJsPath = path.join(projectPath, "/src/app.js")
 
     const targetLine = 8
@@ -34,6 +34,37 @@ export const boilerPlateCodeSetUpForJS = async (projectPath) => {
     });
 
 
+}
+
+export const TSboilerPlateCodeSetUp = async (projectPath) => {
+    const appTsPath = path.join(projectPath, "/src/app.ts")
+      
+    const targetLine = [2, 8]
+
+    const insertedData = [
+    `import type { Express, Request, Response } from "express"`,
+    `app.get("/", (req:Request, res:Response)=> {
+    res.json("Server is up and running")
+})`
+    ]
+
+    const data = await fs.readFile(appTsPath, "utf-8")
+
+    const lines = data.split(/\r?\n/);
+    
+    lines.splice(targetLine[0] , 0, insertedData[0]);
+    lines.splice(1, 1)
+    lines.splice(targetLine[1] , 0, insertedData[1]);
+
+    const updatedContent = lines.join("\n");
+    
+    fs.writeFile(appTsPath, updatedContent, "utf-8", (err) => {
+    if (err) {
+        spinnerDiscardingStdin.fail(err?.message)
+        spinnerDiscardingStdin.start()
+        return;
+    }
+    });
 }
 
 export const addEnvBasedOnDBs = async (projectPath, DB) => {
@@ -61,7 +92,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     }
 
     if (DB === "postgresql" || DB === "mysql") {
-        const envVar = "DATABASE_URL=write your DB_URL"
+        const envVar = "DATABASE_URL=write_your_DB_URL"
 
         const dotEnvPath = path.join(projectPath, ".env")
 
@@ -82,7 +113,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     }
 }
 
-export const boilerCodeSetUpBasedOnDB = async (projectPath, DB) => {
+export const DBboilerCodeSetUp = async (projectPath, DB, modelTool) => {
     if (DB === "mongodb") {
         const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
 
@@ -119,4 +150,5 @@ export const boilerCodeSetUpBasedOnDB = async (projectPath, DB) => {
         })
 
     }
+
 }
