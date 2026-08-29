@@ -10,6 +10,7 @@ import { select } from "@inquirer/prompts";
 import { projectName, language, DB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import ora from "ora";
+import { addEnvBasedOnDBs, boilerPlateCodeSetUpForJS, boilerCodeSetUpBasedOnDB } from "./config.js";
 
 
 const exec = promisify(execCallback);
@@ -92,29 +93,7 @@ await fs.writeFile(
 });
 
 if (templatePath.includes("javascript")) {
-  const appJsPath = path.join(projectPath, "/src/app.js")
-  
-  const targetLine = 8
-  const insertedData = `app.get("/", (req, res)=> {
-  res.json("Server is up and running")
-})`
-
-  const data = await fs.readFile(appJsPath, "utf-8")
-
-  const lines = data.split(/\r?\n/);
-  
-  lines.splice(targetLine - 1, 0, insertedData);
-  
-  const updatedContent = lines.join("\n");
-  
-  fs.writeFile(appJsPath, updatedContent, "utf-8", (err) => {
-    if (err) {
-      spinnerDiscardingStdin.fail(err?.message)
-      spinnerDiscardingStdin.start()
-      return;
-    }
-  });
-  
+  await boilerPlateCodeSetUpForJS(projectPath, DB)
 }
 
 if (templatePath.includes("typescript")) {
@@ -148,6 +127,7 @@ if (templatePath.includes("typescript")) {
   });
 }
 
+await boilerCodeSetUpBasedOnDB(projectPath, DB)
 
 await exec("npx gitignore node", {
   cwd: projectPath
@@ -159,7 +139,10 @@ await exec("npx gitignore node", {
 await fs.writeFile(".env", "PORT=8000\n").catch((err)=>{
   spinnerDiscardingStdin.fail("Failed to create .env file")
   spinnerDiscardingStdin.start()
+}).then(async ()=>{
+  await addEnvBasedOnDBs(projectPath, DB)
 });
+
 
 await exec("npm install", {
   cwd: projectPath
