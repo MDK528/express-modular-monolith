@@ -10,7 +10,7 @@ import { select } from "@inquirer/prompts";
 import { projectName, language, DB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import ora from "ora";
-import { addEnvBasedOnDBs, boilerPlateCodeSetUpForJS, boilerCodeSetUpBasedOnDB } from "./config.js";
+import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp } from "./config.js";
 
 
 const exec = promisify(execCallback);
@@ -93,41 +93,14 @@ await fs.writeFile(
 });
 
 if (templatePath.includes("javascript")) {
-  await boilerPlateCodeSetUpForJS(projectPath, DB)
+  await JSboilerPlateCodeSetUp(projectPath)
 }
 
 if (templatePath.includes("typescript")) {
-  const appTsPath = path.join(projectPath, "/src/app.ts")
-  
-  const targetLine = [2, 8]
-
-  const insertedData = [
-    `import type { Express, Request, Response } from "express"`,
-    `app.get("/", (req:Request, res:Response)=> {
-  res.json("Server is up and running")
-})`
-  ]
-
-  const data = await fs.readFile(appTsPath, "utf-8")
-
-  const lines = data.split(/\r?\n/);
-  
-  lines.splice(targetLine[0] , 0, insertedData[0]);
-  lines.splice(1, 1)
-  lines.splice(targetLine[1] , 0, insertedData[1]);
-
-  const updatedContent = lines.join("\n");
-  
-  fs.writeFile(appTsPath, updatedContent, "utf-8", (err) => {
-    if (err) {
-      spinnerDiscardingStdin.fail(err?.message)
-      spinnerDiscardingStdin.start()
-      return;
-    }
-  });
+  await TSboilerPlateCodeSetUp(projectPath)
 }
 
-await boilerCodeSetUpBasedOnDB(projectPath, DB)
+await DBboilerCodeSetUp(projectPath, DB, modelTool)
 
 await exec("npx gitignore node", {
   cwd: projectPath

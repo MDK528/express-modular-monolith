@@ -11,3 +11,10 @@ export const connectionDB = async () => {
         process.exit(1)
     }
 }`
+
+
+export const drizzlePostgresBoilerPlate = `import "dotenv/config";
+import { drizzle } from 'drizzle-orm/node-postgres';
+
+
+export const db = drizzle(process.env.POSTGRES_URL);`

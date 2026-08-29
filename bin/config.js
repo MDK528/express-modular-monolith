@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { mongodbConBoilerplateCode } from "./boilerPlateCodes.js";
+import { drizzlePostgresBoilerPlate, mongodbConBoilerplateCode } from "./boilerPlateCodes.js";
 
 
 const spinnerDiscardingStdin = ora({
@@ -151,4 +151,41 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool) => {
 
     }
 
+    if (DB === "postgresql" && modelTool === "drizzle") {
+        const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
+
+        fs.writeFile(dbJsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+
+        const serverJsPath = path.join(projectPath, "/src/server.js");
+        const serverJsData = await fs.readFile(serverJsPath, "utf-8");
+
+        const targetLine = [3, 9]
+        const insertedData = [`import { db } from "./common/config/db.js";
+import { sql } from 'drizzle-orm'`,
+            '        await db.execute(sql`select 1`)'];
+
+        const lines = serverJsData.split(/\r?\n/);
+        lines.splice(targetLine[0] - 1, 0, insertedData[0])
+        lines.splice(targetLine[1], 1)
+        lines.splice(targetLine[1], 0, insertedData[1])
+
+
+
+        const updatedContent = lines.join("\n");
+
+        fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+
+    }
 }
