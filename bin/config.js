@@ -71,7 +71,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     const targetLine = 2
 
     if (DB === "mongodb") {
-        const envVar = "MONGODB_URI=write your mongodb uri"
+        const envVar = "MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database_name>?retryWrites=true&w=majority"
 
         const dotEnvPath = path.join(projectPath, ".env")
 
@@ -92,7 +92,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     }
 
     if (DB === "postgresql" || DB === "mysql") {
-        const envVar = "DATABASE_URL=write_your_DB_URL"
+        const envVar = "DATABASE_URL=postgresql://user:password@localhost:5432/mydatabase?sslmode=prefer"
 
         const dotEnvPath = path.join(projectPath, ".env")
 
@@ -190,6 +190,42 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) =>
     }
 
     if (language === "typescript") {
+        if (DB === "mongodb") {
+            const dbTsPath = path.join(projectPath, "/src/common/config/db.ts")
+
+            fs.writeFile(dbTsPath, mongodbConBoilerplateCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+
+            const serverTsPath = path.join(projectPath, "/src/server.ts")
+            const serverTsData = await fs.readFile(serverTsPath, "utf-8");
+            
+            const targetLine = [3, 9]
+            const insertedData = [`import { connectionDB } from "../src/common/config/db.ts"`,
+                `        await connectionDB()`];
+            
+            const lines = serverTsData.split(/\r?\n/);
+            lines.splice(targetLine[0] - 1, 0, insertedData[0])
+            lines.splice(targetLine[1], 1)
+            lines.splice(targetLine[1], 0, insertedData[1])
+
+
+
+            const updatedContent = lines.join("\n");
+
+            fs.writeFile(serverTsPath, updatedContent, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
         if (DB === "postgresql" && modelTool === "drizzle") {
             const dbTsPath = path.join(projectPath, "/src/common/config/db.ts")
 

@@ -2,7 +2,7 @@ export const dbPackages = {
   mongodb: {
     mongoose: {
       dependencies: {
-        mongoose: "^9.9.4"
+        "mongoose": "^9.9.4"
       }
     }
   },
