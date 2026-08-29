@@ -92,15 +92,17 @@ await fs.writeFile(
   spinnerDiscardingStdin.start()
 });
 
+let lang;
+
 if (templatePath.includes("javascript")) {
   await JSboilerPlateCodeSetUp(projectPath)
+  await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "javascript")
 }
 
 if (templatePath.includes("typescript")) {
   await TSboilerPlateCodeSetUp(projectPath)
+  await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
 }
-
-await DBboilerCodeSetUp(projectPath, DB, modelTool)
 
 await exec("npx gitignore node", {
   cwd: projectPath

@@ -113,79 +113,118 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     }
 }
 
-export const DBboilerCodeSetUp = async (projectPath, DB, modelTool) => {
-    if (DB === "mongodb") {
-        const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
+export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) => {
+    if (language === "javascript") {
+        if (DB === "mongodb") {
+            const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
 
-        fs.writeFile(dbJsPath, mongodbConBoilerplateCode, "utf-8", (err)=>{
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
+            fs.writeFile(dbJsPath, mongodbConBoilerplateCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
 
-        const serverJsPath = path.join(projectPath, "/src/server.js")
-        const serverJsData = await fs.readFile(serverJsPath, "utf-8");
-        
-        const targetLine = [3, 9]
-        const insertedData = [`import { connectionDB } from "../src/common/config/db.js"`,
-            `        await connectionDB()`];
-        
-        const lines = serverJsData.split(/\r?\n/);
-        lines.splice(targetLine[0] - 1, 0, insertedData[0])
-        lines.splice(targetLine[1], 1)
-        lines.splice(targetLine[1], 0, insertedData[1])
+            const serverJsPath = path.join(projectPath, "/src/server.js")
+            const serverJsData = await fs.readFile(serverJsPath, "utf-8");
+            
+            const targetLine = [3, 9]
+            const insertedData = [`import { connectionDB } from "../src/common/config/db.js"`,
+                `        await connectionDB()`];
+            
+            const lines = serverJsData.split(/\r?\n/);
+            lines.splice(targetLine[0] - 1, 0, insertedData[0])
+            lines.splice(targetLine[1], 1)
+            lines.splice(targetLine[1], 0, insertedData[1])
 
 
 
-        const updatedContent = lines.join("\n");
+            const updatedContent = lines.join("\n");
 
-        fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
-
-    }
+            fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
 
     if (DB === "postgresql" && modelTool === "drizzle") {
-        const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
+            const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
 
-        fs.writeFile(dbJsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
+            fs.writeFile(dbJsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
 
-        const serverJsPath = path.join(projectPath, "/src/server.js");
-        const serverJsData = await fs.readFile(serverJsPath, "utf-8");
+            const serverJsPath = path.join(projectPath, "/src/server.js");
+            const serverJsData = await fs.readFile(serverJsPath, "utf-8");
 
-        const targetLine = [3, 9]
-        const insertedData = [`import { db } from "./common/config/db.js";
-import { sql } from 'drizzle-orm'`,
-            '        await db.execute(sql`select 1`)'];
+            const targetLine = [3, 9]
+            const insertedData = [`import { db } from "./common/config/db.js";
+    import { sql } from "drizzle-orm"`,
+                '        await db.execute(sql`select 1`)'];
 
-        const lines = serverJsData.split(/\r?\n/);
-        lines.splice(targetLine[0] - 1, 0, insertedData[0])
-        lines.splice(targetLine[1], 1)
-        lines.splice(targetLine[1], 0, insertedData[1])
+            const lines = serverJsData.split(/\r?\n/);
+            lines.splice(targetLine[0] - 1, 0, insertedData[0])
+            lines.splice(targetLine[1], 1)
+            lines.splice(targetLine[1], 0, insertedData[1])
 
 
 
-        const updatedContent = lines.join("\n");
+            const updatedContent = lines.join("\n");
 
-        fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
+            fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+    }
 
+    if (language === "typescript") {
+        if (DB === "postgresql" && modelTool === "drizzle") {
+            const dbTsPath = path.join(projectPath, "/src/common/config/db.ts")
+
+            fs.writeFile(dbTsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+
+            const serverTsPath = path.join(projectPath, "/src/server.ts");
+            const serverTsData = await fs.readFile(serverTsPath, "utf-8");
+
+            const targetLine = [3, 9]
+            const insertedData = [`import { db } from "./common/config/db.ts";
+import { sql } from "drizzle-orm"`,
+                '        await db.execute(sql`select 1`)'];
+
+            const lines = serverTsData.split(/\r?\n/);
+            lines.splice(targetLine[0] - 1, 0, insertedData[0])
+            lines.splice(targetLine[1], 1)
+            lines.splice(targetLine[1], 0, insertedData[1])
+
+
+
+            const updatedContent = lines.join("\n");
+
+            fs.writeFile(serverTsPath, updatedContent, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
     }
 }

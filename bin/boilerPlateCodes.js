@@ -14,7 +14,7 @@ export const connectionDB = async () => {
 
 
 export const drizzlePostgresBoilerPlate = `import "dotenv/config";
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
 
 
 export const db = drizzle(process.env.POSTGRES_URL);`
