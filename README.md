@@ -2,10 +2,7 @@
 
 Generate an Express modular monolith boilerplate with JavaScript or TypeScript.
 
----
-
-> Note: This architecture is not opinionated or prescriptive. You can modify, extend, or completely rewrite it to fit your project's requirements
-
+> **Note:** This architecture is not opinionated or prescriptive. You can modify, extend, or completely rewrite it to fit your project's requirements.
 
 ## Usage
 
@@ -19,14 +16,17 @@ npx express-modular-monolith
 * TypeScript template
 * Modular monolith structure
 * Express
+* MongoDB with Mongoose
+* PostgreSQL with Drizzle ORM
 * Automatic Git repository initialization
 * Automatic initial Git commit
 
-## What's New in v1.1.4
+## What's New in v1.2.0
 
-* Added automatic `git init` after generating the project
-* Added automatic initial commit for the generated boilerplate
-* The generated project is ready to start tracking with Git immediately
+* Added MongoDB + Mongoose support
+* Added PostgreSQL + Drizzle ORM support
+* Added database and ORM/ODM selection during project generation
+* Both JavaScript and TypeScript templates support the available database configurations
 
 ## How It Works
 
@@ -36,15 +36,25 @@ Run:
 npx express-modular-monolith
 ```
 
-Choose your preferred language and project location. The CLI will:
+Choose your preferred language, database, and ORM/ODM. The CLI will:
 
 1. Generate the selected boilerplate
-2. Install the required dependencies
-3. Initialize a Git repository
-4. Add the generated files to Git
-5. Create an initial commit
+2. Configure the selected database and ORM/ODM
+3. Install the required dependencies
+4. Initialize a Git repository
+5. Add the generated files to Git
+6. Create an initial commit
 
-Your generated project will be ready for development with Git already configured.
+Currently supported configurations:
+
+| Language   | Database   | ORM/ODM  |
+| ---------- | ---------- | -------- |
+| JavaScript | MongoDB    | Mongoose |
+| JavaScript | PostgreSQL | Drizzle  |
+| TypeScript | MongoDB    | Mongoose |
+| TypeScript | PostgreSQL | Drizzle  |
+
+Your generated project will be ready for development with the selected database configuration and Git already initialized.
 
 ## Requirements
 
