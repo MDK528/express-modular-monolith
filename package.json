@@ -1,6 +1,6 @@
 {
   "name": "express-modular-monolith",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "This is a modular monolith project generator for Express.js",
   "type": "module",
   "bin": {
