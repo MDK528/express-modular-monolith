@@ -4,12 +4,11 @@ import ora from "ora";
 import { drizzlePostgresBoilerPlate, mongodbConBoilerplateCode } from "./boilerPlateCodes.js";
 
 
-const spinnerDiscardingStdin = ora({
-    text: "Loading Packages",
-    spinner: process.argv[2],
+export const spinnerDiscardingStdin = ora({
+	text: "Loading Packages",
+	spinner: "dots14",
     color: "cyan"
 });
-
 
 export const JSboilerPlateCodeSetUp = async (projectPath) => {
     const appJsPath = path.join(projectPath, "/src/app.js")
@@ -167,7 +166,7 @@ export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) =>
 
             const targetLine = [3, 9]
             const insertedData = [`import { db } from "./common/config/db.js";
-    import { sql } from "drizzle-orm"`,
+import { sql } from "drizzle-orm"`,
                 '        await db.execute(sql`select 1`)'];
 
             const lines = serverJsData.split(/\r?\n/);

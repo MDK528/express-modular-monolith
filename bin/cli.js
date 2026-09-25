@@ -6,52 +6,14 @@ import { exec as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import process from "node:process";
-import { select } from "@inquirer/prompts";
-import { projectName, language, DB } from "./cliQuestions.js";
+import { projectName, language, DB, modelTool } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
-import ora from "ora";
 import chalk from "chalk"
-import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp } from "./config.js";
+import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp, spinnerDiscardingStdin } from "./config.js";
 
 
 const exec = promisify(execCallback);
 
-const spinnerDiscardingStdin = ora({
-	text: "Loading Packages",
-	spinner: "dots14",
-  color: "cyan"
-});
-
-
-projectName
-
-let modelTool;
-
-if (DB === "mongodb") {
-  modelTool = await select({
-    message: "Choose ODM:",
-    choices: [
-      {
-        name: "Mongoose",
-        value: "mongoose"
-      }
-    ]
-  });
-} else {
-  modelTool = await select({
-    message: "Choose ORM:",
-    choices: [
-      {
-        name: "Drizzle",
-        value: "drizzle"
-      },
-      {
-        name: "Prisma",
-        value: "prisma"
-      }
-    ]
-  });
-}
 
 spinnerDiscardingStdin.start("Installing required packages, wait for a while");
 
