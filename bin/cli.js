@@ -10,6 +10,7 @@ import { select } from "@inquirer/prompts";
 import { projectName, language, DB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import ora from "ora";
+import chalk from "chalk"
 import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp } from "./config.js";
 
 
@@ -17,10 +18,12 @@ const exec = promisify(execCallback);
 
 const spinnerDiscardingStdin = ora({
 	text: "Loading Packages",
-	spinner: process.argv[2],
-    color: "cyan"
+	spinner: "dots14",
+  color: "cyan"
 });
 
+
+projectName
 
 let modelTool;
 
@@ -116,7 +119,7 @@ await exec("npx gitignore node", {
   spinnerDiscardingStdin.start()
 });
 
-await fs.writeFile(".env", "PORT=8000\n").catch((err)=>{
+await fs.writeFile(path.join(projectPath ,".env"), "PORT=8000\n").catch((err)=>{
   spinnerDiscardingStdin.fail("Failed to create .env file")
   spinnerDiscardingStdin.start()
 }).then(async ()=>{
@@ -153,3 +156,4 @@ await exec(`git commit -m "Initial commit"`, {
 });
 
 spinnerDiscardingStdin.succeed("Packages successfully installed");
+spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct DATABASE_URL in .env"))
