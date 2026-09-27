@@ -50,6 +50,10 @@ try {
       {
         name: "MongoDB",
         value: "mongodb"
+      },
+      {
+        name: "None",
+        value: "none"
       }
     ]
   });
@@ -58,35 +62,46 @@ try {
   process.exit(1)
 }
 
-export let modelTool;
+let modelTool;
 
-try {
-  if (DB === "mongodb") {
-    modelTool = await select({
-      message: "Choose ODM:",
-      choices: [
-        {
-          name: "Mongoose",
-          value: "mongoose"
-        }
-      ]
-    });
-  } else {
-    modelTool = await select({
-      message: "Choose ORM:",
-      choices: [
-        {
-          name: "Drizzle",
-          value: "drizzle"
-        },
-        {
-          name: "Prisma",
-          value: "prisma"
-        }
-      ]
-    });
+export async function selectToolByDB (){
+  if(DB === "none") return;
+
+  try {
+    if (DB === "mongodb") {
+      modelTool = await select({
+        message: "Choose ODM:",
+        choices: [
+          {
+            name: "Mongoose",
+            value: "mongoose"
+          }
+        ]
+      });
+    } else {
+      modelTool = await select({
+        message: "Choose ORM:",
+        choices: [
+          {
+            name: "Drizzle",
+            value: "drizzle"
+          },
+          {
+            name: "Prisma",
+            value: "prisma"
+          }
+        ]
+      });
+    }
+  } catch (error) {
+    console.error(chalk.red(error?.message || "User force closed the prompt with SIGINT"))
+    process.exit(1)
   }
-} catch (error) {
-  console.error(chalk.red(error?.message || "User force closed the prompt with SIGINT"))
-  process.exit(1)
+
+  return modelTool;
 }
+
+
+
+
+

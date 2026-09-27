@@ -6,7 +6,7 @@ import { exec as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import process from "node:process";
-import { projectName, language, DB, modelTool } from "./cliQuestions.js";
+import { projectName, language, DB, selectToolByDB } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import chalk from "chalk"
 import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp, spinnerDiscardingStdin } from "./config.js";
@@ -14,8 +14,10 @@ import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPl
 
 const exec = promisify(execCallback);
 
+const modelTool = await selectToolByDB()
 
 spinnerDiscardingStdin.start("Installing required packages, wait for a while");
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,29 +35,38 @@ const packageJson = JSON.parse(
 
 if (projectName === ".") {
   packageJson.name = path.basename(process.cwd());
-}else{
+} else{
   packageJson.name = projectName;
 }
 
-const selectedPackages = dbPackages[DB][modelTool];
+const loadDependenciesByDB = async () => {
 
-packageJson.dependencies = {
-  ...packageJson.dependencies,
-  ...selectedPackages.dependencies
-};
+  if(DB === "none") return;
 
-packageJson.devDependencies = {
-  ...packageJson.devDependencies,
-  ...selectedPackages.devDependencies
-};
+  const selectedPackages = dbPackages[DB][modelTool];
 
-await fs.writeFile(
-  packageJsonPath,
-  JSON.stringify(packageJson, null, 2)
-).catch((err)=>{
-  spinnerDiscardingStdin.fail(err)
-  spinnerDiscardingStdin.start()
-});
+  packageJson.dependencies = {
+    ...packageJson.dependencies,
+    ...selectedPackages.dependencies
+  };
+
+  packageJson.devDependencies = {
+    ...packageJson.devDependencies,
+    ...selectedPackages.devDependencies
+  };
+
+  await fs.writeFile(
+    packageJsonPath,
+    JSON.stringify(packageJson, null, 2)
+  ).catch((err)=>{
+    spinnerDiscardingStdin.fail(err)
+    spinnerDiscardingStdin.start()
+  });
+
+}
+
+await loadDependenciesByDB()
+
 
 let lang;
 
@@ -73,6 +84,7 @@ if (templatePath.includes("typescript")) {
     })
   }
 }
+
 
 await exec("npx gitignore node", {
   cwd: projectPath
@@ -117,5 +129,8 @@ await exec(`git commit -m "Initial commit"`, {
   spinnerDiscardingStdin.start()
 });
 
-spinnerDiscardingStdin.succeed("Packages successfully installed");
-spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct DATABASE_URL in .env"))
+spinnerDiscardingStdin.succeed(chalk.green("Packages successfully installed"));
+
+if(DB !== "none") { 
+  spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct DATABASE_URL in .env"))
+}
