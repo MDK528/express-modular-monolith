@@ -5,7 +5,13 @@ export let projectName;
 
 try {
   projectName = await input({
-    message: "Project name:"
+    message: "Project name:",
+    validate: (value) => {
+      if (/^[a-zA-Z._-]+$/.test(value) && (value.match(/\./g) || []).length <= 1) {
+        return true;
+      }
+      return "Use letters, or a single dot (.) to indicate the current directory.";
+    }
   });
 } catch (error) {
   console.error(chalk.red(error?.message || "User force closed the prompt with SIGINT"))
