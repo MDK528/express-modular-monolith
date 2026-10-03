@@ -78,11 +78,6 @@ if (templatePath.includes("javascript")) {
 if (templatePath.includes("typescript")) {
   await TSboilerPlateCodeSetUp(projectPath)
   await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
-  if(modelTool === "mongoose"){
-    await exec("npm install @types/mongoose -D", {
-      cwd: projectPath
-    })
-  }
 }
 
 await fs.rename(
