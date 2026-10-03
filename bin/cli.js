@@ -34,8 +34,7 @@ const packageJson = JSON.parse(
 );
 
 if (projectName === ".") {
-  const projectNameFromPath = path.basename(projectPath);
-  packageJson.name = projectNameFromPath.toLocaleLowerCase();
+  packageJson.name = path.basename(projectPath).toLocaleLowerCase();
 } else{
   packageJson.name = projectName.toLocaleLowerCase();
 }
@@ -86,13 +85,13 @@ if (templatePath.includes("typescript")) {
   }
 }
 
-
-await exec("npx gitignore node", {
-  cwd: projectPath
-}).catch((err)=>{
+await fs.rename(
+  path.join(projectPath, "_gitignore"),
+  path.join(projectPath, ".gitignore")
+).catch((err) => {
   spinnerDiscardingStdin.fail("Failed to load .gitignore, run 'npx gitignore node in project root directory to load .gitignore")
   spinnerDiscardingStdin.start()
-});
+})
 
 await fs.writeFile(path.join(projectPath ,".env"), "PORT=8000\n").catch((err)=>{
   spinnerDiscardingStdin.fail("Failed to create .env file")
