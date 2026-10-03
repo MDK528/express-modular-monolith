@@ -6,7 +6,7 @@ import { exec as execCallback } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import process from "node:process";
-import { projectName, language, DB, selectToolByDB } from "./cliQuestions.js";
+import { projectName, language, DB, selectToolByDB, selectInstallWith } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import chalk from "chalk"
 import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp, spinnerDiscardingStdin } from "./config.js";
@@ -15,6 +15,7 @@ import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPl
 const exec = promisify(execCallback);
 
 const modelTool = await selectToolByDB()
+const packageManager = await selectInstallWith();
 
 spinnerDiscardingStdin.start("Installing required packages, wait for a while");
 
@@ -96,10 +97,10 @@ await fs.writeFile(path.join(projectPath ,".env"), "PORT=8000\n").catch((err)=>{
 });
 
 
-await exec("npm install", {
+await exec(`${packageManager} install`, {
   cwd: projectPath
 }).catch((err)=>{
-  spinnerDiscardingStdin.fail("Failed to load required packeages, run 'npm install' to load packages")
+  spinnerDiscardingStdin.fail(`Failed to load required packeages, run '${packageManager} install' to load packages`)
   spinnerDiscardingStdin.start()
 });
 

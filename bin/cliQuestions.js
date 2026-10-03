@@ -108,6 +108,39 @@ export async function selectToolByDB (){
 }
 
 
+let installWith;
+
+export async function selectInstallWith (){
+
+  try {
+    installWith = await select({
+      message: "Choose a package manager:",
+      choices: [
+        {
+          name: "npm",
+          value: "npm"
+        },
+        {
+          name: "pnpm",
+          value: "pnpm"
+        },
+        {
+          name: "bun",
+          value: "bun"
+        }
+      ]
+
+    });
+  } catch (error) {
+    console.error(chalk.red(error?.message || "User force closed the prompt with SIGINT"))
+    process.exit(1)
+  }
+
+  return installWith;
+}
+
+
+
 
 
 
