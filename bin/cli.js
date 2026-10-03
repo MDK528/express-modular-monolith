@@ -34,9 +34,10 @@ const packageJson = JSON.parse(
 );
 
 if (projectName === ".") {
-  packageJson.name = path.basename(process.cwd());
+  const projectNameFromPath = path.basename(projectPath);
+  packageJson.name = projectNameFromPath.toLocaleLowerCase();
 } else{
-  packageJson.name = projectName;
+  packageJson.name = projectName.toLocaleLowerCase();
 }
 
 const loadDependenciesByDB = async () => {
