@@ -18,10 +18,11 @@ npx express-modular-monolith
 * Express
 * MongoDB with Mongoose
 * PostgreSQL with Drizzle ORM
+* Package manager selection
 * Automatic Git repository initialization
 * Automatic initial Git commit
 
-## What's New in v1.2.0
+## What's New in v1.2.3
 
 * Added MongoDB + Mongoose support
 * Added PostgreSQL + Drizzle ORM support
