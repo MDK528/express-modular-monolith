@@ -67,10 +67,9 @@ export const TSboilerPlateCodeSetUp = async (projectPath) => {
 
 export const addEnvBasedOnDBs = async (projectPath, DB) => {
     const targetLine = 2
+    let envVar;
 
-    if (DB === "mongodb") {
-        const envVar = "MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database_name>?retryWrites=true&w=majority"
-
+    const readAndWriteEnv = async () => {
         const dotEnvPath = path.join(projectPath, ".env")
 
         const envData = await fs.readFile(dotEnvPath, "utf-8")
@@ -89,25 +88,19 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
         });
     }
 
-    if (DB === "postgresql" || DB === "mysql") {
-        const envVar = "DATABASE_URL=postgresql://user:password@localhost:5432/mydatabase?sslmode=prefer"
+    if (DB === "mongodb") {
+        envVar = "MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database_name>?retryWrites=true&w=majority"
+        await readAndWriteEnv()
+    }
 
-        const dotEnvPath = path.join(projectPath, ".env")
+    if (DB === "postgresql") {
+        envVar = "DATABASE_URL=postgresql://user:password@localhost:5432/mydatabase"
+        await readAndWriteEnv()
+    }
 
-        const envData = await fs.readFile(dotEnvPath, "utf-8")
-
-        const lines = envData.split(/\r?\n/);
-        lines.splice(targetLine - 1, 0, envVar);
-
-        const updatedContent = lines.join("\n");
-
-        fs.writeFile(dotEnvPath, updatedContent, "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        });
+    if (DB === "mysql") {
+        envVar = "DATABASE_URL=mysql://user:password@localhost:3306/mydatabase"
+        await readAndWriteEnv()
     }
 }
 
