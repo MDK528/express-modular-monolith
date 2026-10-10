@@ -246,7 +246,7 @@ import { sql } from "drizzle-orm"`,
             const serverTsData = await fs.readFile(serverTsPath, "utf-8");
 
             const targetLine = [3, 9]
-            const insertedData = [`import { db } from "./common/config/db.ts";
+            const insertedData = [`import { db } from "./common/config/db.js";
 import { sql } from "drizzle-orm"`,
                 '        await db.execute(sql`select 1`)'];
 
