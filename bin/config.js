@@ -178,11 +178,7 @@ import { sql } from "drizzle-orm"`,
                 }
             })
 
-            loadDrizzleConfigFile(language).catch((err)=>{
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            })
+            await loadDrizzleConfigFile(language)
         }
     }
 
@@ -265,24 +261,32 @@ import { sql } from "drizzle-orm"`,
                 }
             })
 
-            loadDrizzleConfigFile(language).catch((err)=>{
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            })
+            await loadDrizzleConfigFile(language)
         }
     }
 }
 
 export const loadDrizzleConfigFile = async (language) => {
     if (language === "javascript") {
-        const splitted = drizzleConfigBoilerPlate.split("\n")
-        splitted.splice(8, 1, '     url: process.env.DATABASE_URL,')
+        const content = drizzleConfigBoilerPlate.split("\n")
+        content.splice(8, 1, '     url: process.env.DATABASE_URL,')
 
-        await fs.writeFile(path.join(process.cwd(), "drizzle.config.js"), splitted.join("\n"))
+        await fs.writeFile(path.join(process.cwd(), "drizzle.config.js"), content.join("\n"), "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
     }
 
     if (language === "typescript") {
-        await fs.writeFile(path.join(process.cwd(), "drizzle.config.ts"), drizzleConfigBoilerPlate)
+        await fs.writeFile(path.join(process.cwd(), "drizzle.config.ts"), drizzleConfigBoilerPlate, "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
     }
 }
