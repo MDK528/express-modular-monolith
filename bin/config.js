@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzlePostgresBoilerPlate, mongodbConBoilerplateCode } from "./boilerPlateCodes.js";
+import { drizzleConfigBoilerPlate, drizzlePostgresBoilerPlate, mongodbConBoilerplateCode } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -31,7 +31,6 @@ export const JSboilerPlateCodeSetUp = async (projectPath) => {
             return;
         }
     });
-
 
 }
 
@@ -185,6 +184,12 @@ import { sql } from "drizzle-orm"`,
                     return;
                 }
             })
+
+            loadDrizzleConfigFile(language).catch((err)=>{
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            })
         }
     }
 
@@ -266,6 +271,25 @@ import { sql } from "drizzle-orm"`,
                     return;
                 }
             })
+
+            loadDrizzleConfigFile(language).catch((err)=>{
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            })
         }
+    }
+}
+
+export const loadDrizzleConfigFile = async (language) => {
+    if (language === "javascript") {
+        const splitted = drizzleConfigBoilerPlate.split("\n")
+        splitted.splice(8, 1, '     url: process.env.DATABASE_URL,')
+
+        await fs.writeFile(path.join(process.cwd(), "drizzle.config.js"), splitted.join("\n"))
+    }
+
+    if (language === "typescript") {
+        await fs.writeFile(path.join(process.cwd(), "drizzle.config.ts"), drizzleConfigBoilerPlate)
     }
 }
