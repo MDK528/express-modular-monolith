@@ -79,13 +79,23 @@ if (templatePath.includes("javascript")) {
 if (templatePath.includes("typescript")) {
   await TSboilerPlateCodeSetUp(projectPath)
   await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
+
+  await fs.rename(
+    path.join(projectPath, "_tsconfig.json"),
+    path.join(projectPath, "tsconfig.json")
+  ).catch((err) => {
+    spinnerDiscardingStdin.fail("Failed to load tsconfig, run 'npx tsc --init' in project root directory to load tsconfig")
+    spinnerDiscardingStdin.start()
+  })
 }
+
+
 
 await fs.rename(
   path.join(projectPath, "_gitignore"),
   path.join(projectPath, ".gitignore")
 ).catch((err) => {
-  spinnerDiscardingStdin.fail("Failed to load .gitignore, run 'npx gitignore node in project root directory to load .gitignore")
+  spinnerDiscardingStdin.fail("Failed to load .gitignore, run 'npx gitignore node' in project root directory to load .gitignore")
   spinnerDiscardingStdin.start()
 })
 
