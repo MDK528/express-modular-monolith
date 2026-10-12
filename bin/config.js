@@ -10,7 +10,33 @@ export const spinnerDiscardingStdin = ora({
     color: "cyan"
 });
 
-export const JSboilerPlateCodeSetUp = async (projectPath) => {
+export const loadDependenciesByDB = async (dbPackages, DB, modelTool, packageJson, packageJsonPath) => {
+
+  if(DB === "none") return;
+
+  const selectedPackages = dbPackages[DB][modelTool];
+
+  packageJson.dependencies = {
+    ...packageJson.dependencies,
+    ...selectedPackages.dependencies
+  };
+
+  packageJson.devDependencies = {
+    ...packageJson.devDependencies,
+    ...selectedPackages.devDependencies
+  };
+
+  await fs.writeFile(
+    packageJsonPath,
+    JSON.stringify(packageJson, null, 2)
+  ).catch((err)=>{
+    spinnerDiscardingStdin.fail(err)
+    spinnerDiscardingStdin.start()
+  });
+
+}
+
+export const jsBoilerPlateCodeSetUp = async (projectPath) => {
     const appJsPath = path.join(projectPath, "/src/app.js")
 
     const targetLine = 8
@@ -34,7 +60,7 @@ export const JSboilerPlateCodeSetUp = async (projectPath) => {
 
 }
 
-export const TSboilerPlateCodeSetUp = async (projectPath) => {
+export const tsBoilerPlateCodeSetUp = async (projectPath) => {
     const appTsPath = path.join(projectPath, "/src/app.ts")
       
     const targetLine = [2, 8]
@@ -104,7 +130,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
     }
 }
 
-export const DBboilerCodeSetUp = async (projectPath, DB, modelTool, language) => {
+export const dbBoilerCodeSetUp = async (projectPath, DB, modelTool, language) => {
     if (language === "javascript") {
         if (DB === "mongodb") {
             const dbJsPath = path.join(projectPath, "/src/common/config/db.js")

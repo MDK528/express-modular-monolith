@@ -9,7 +9,7 @@ import process from "node:process";
 import { projectName, language, DB, selectToolByDB, selectInstallWith } from "./cliQuestions.js";
 import { dbPackages } from "./packages.js";
 import chalk from "chalk"
-import { addEnvBasedOnDBs, JSboilerPlateCodeSetUp, DBboilerCodeSetUp, TSboilerPlateCodeSetUp, spinnerDiscardingStdin } from "./config.js";
+import { addEnvBasedOnDBs, jsBoilerPlateCodeSetUp, dbBoilerCodeSetUp, tsBoilerPlateCodeSetUp, spinnerDiscardingStdin, loadDependenciesByDB } from "./config.js";
 
 
 const exec = promisify(execCallback);
@@ -34,51 +34,23 @@ const packageJson = JSON.parse(
   await fs.readFile(packageJsonPath, "utf-8")
 );
 
-if (projectName === ".") {
-  packageJson.name = path.basename(projectPath).toLocaleLowerCase();
-} else{
-  packageJson.name = projectName.toLocaleLowerCase();
-}
 
-const loadDependenciesByDB = async () => {
+if(projectName === ".") packageJson.name = path.basename(projectPath).toLocaleLowerCase();
+else packageJson.name = projectName.toLocaleLowerCase();
 
-  if(DB === "none") return;
-
-  const selectedPackages = dbPackages[DB][modelTool];
-
-  packageJson.dependencies = {
-    ...packageJson.dependencies,
-    ...selectedPackages.dependencies
-  };
-
-  packageJson.devDependencies = {
-    ...packageJson.devDependencies,
-    ...selectedPackages.devDependencies
-  };
-
-  await fs.writeFile(
-    packageJsonPath,
-    JSON.stringify(packageJson, null, 2)
-  ).catch((err)=>{
-    spinnerDiscardingStdin.fail(err)
-    spinnerDiscardingStdin.start()
-  });
-
-}
-
-await loadDependenciesByDB()
+await loadDependenciesByDB(dbPackages, DB, modelTool, packageJson, packageJsonPath)
 
 
 let lang;
 
 if (templatePath.includes("javascript")) {
-  await JSboilerPlateCodeSetUp(projectPath)
-  await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "javascript")
+  await jsBoilerPlateCodeSetUp(projectPath)
+  await dbBoilerCodeSetUp(projectPath, DB, modelTool, lang = "javascript")
 }
 
 if (templatePath.includes("typescript")) {
-  await TSboilerPlateCodeSetUp(projectPath)
-  await DBboilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
+  await tsBoilerPlateCodeSetUp(projectPath)
+  await dbBoilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
 
   await fs.rename(
     path.join(projectPath, "_tsconfig.json"),
@@ -88,8 +60,6 @@ if (templatePath.includes("typescript")) {
     spinnerDiscardingStdin.start()
   })
 }
-
-
 
 await fs.rename(
   path.join(projectPath, "_gitignore"),
