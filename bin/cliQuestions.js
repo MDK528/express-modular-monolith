@@ -7,7 +7,7 @@ try {
   projectName = await input({
     message: "Project name:",
     validate: (value) => {
-      if (/^[a-zA-Z._-]+$/.test(value) && (value.match(/\./g) || []).length <= 1) {
+      if (value === "." || /^[a-zA-Z]+(-[a-zA-Z]+)*$/.test(value)) {
         return true;
       }
       return "Use letters, or a single dot (.) to indicate the current directory.";
