@@ -49,3 +49,21 @@ export const dbPackages = {
     }
   }
 };
+
+export const ORMscripts = {
+  drizzle: {
+    scripts: {
+      "studio": "drizzle-kit studio",
+      "db:generate": "drizzle-kit generate",
+      "db:migrate": "drizzle-kit migrate"
+    }
+  },
+  prisma: {
+    scripts: {
+      "studio": "prisma studio",
+      "db:generate": "prisma generate",
+      "db:migrate": "prisma migrate dev",
+      "db:deploy": "prisma migrate deploy"
+    }
+  }
+};

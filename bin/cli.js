@@ -7,9 +7,9 @@ import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import process from "node:process";
 import { projectName, language, DB, selectToolByDB, selectInstallWith } from "./cliQuestions.js";
-import { dbPackages } from "./packages.js";
+import { dbPackages, ORMscripts } from "./packages.js";
 import chalk from "chalk"
-import { addEnvBasedOnDBs, jsBoilerPlateCodeSetUp, dbBoilerCodeSetUp, tsBoilerPlateCodeSetUp, spinnerDiscardingStdin, loadDependenciesByDB } from "./config.js";
+import { addEnvBasedOnDBs, jsBoilerPlateCodeSetUp, dbBoilerCodeSetUp, tsBoilerPlateCodeSetUp, spinnerDiscardingStdin, configurePackageByDB  } from "./config.js";
 
 
 const exec = promisify(execCallback);
@@ -38,7 +38,7 @@ const packageJson = JSON.parse(
 if(projectName === ".") packageJson.name = path.basename(projectPath).toLocaleLowerCase();
 else packageJson.name = projectName.toLocaleLowerCase();
 
-await loadDependenciesByDB(dbPackages, DB, modelTool, packageJson, packageJsonPath)
+await configurePackageByDB(dbPackages, DB, modelTool, packageJson, packageJsonPath, ORMscripts)
 
 
 let lang;

@@ -10,29 +10,35 @@ export const spinnerDiscardingStdin = ora({
     color: "cyan"
 });
 
-export const loadDependenciesByDB = async (dbPackages, DB, modelTool, packageJson, packageJsonPath) => {
+export const configurePackageByDB  = async (dbPackages, DB, modelTool, packageJson, packageJsonPath, ORMscripts) => {
 
-  if(DB === "none") return;
+    if(DB === "none") return;
 
-  const selectedPackages = dbPackages[DB][modelTool];
+    const selectedPackages = dbPackages[DB][modelTool];
+    const selectedScripts = ORMscripts[modelTool];
 
-  packageJson.dependencies = {
-    ...packageJson.dependencies,
-    ...selectedPackages.dependencies
-  };
+    packageJson.scripts = {
+        ...packageJson.scripts,
+        ...selectedScripts.scripts
+    }
 
-  packageJson.devDependencies = {
-    ...packageJson.devDependencies,
-    ...selectedPackages.devDependencies
-  };
+    packageJson.dependencies = {
+        ...packageJson.dependencies,
+        ...selectedPackages.dependencies
+    };
 
-  await fs.writeFile(
-    packageJsonPath,
-    JSON.stringify(packageJson, null, 2)
-  ).catch((err)=>{
-    spinnerDiscardingStdin.fail(err)
-    spinnerDiscardingStdin.start()
-  });
+    packageJson.devDependencies = {
+        ...packageJson.devDependencies,
+        ...selectedPackages.devDependencies
+    };
+
+    await fs.writeFile(
+        packageJsonPath,
+        JSON.stringify(packageJson, null, 2)
+    ).catch((err)=>{
+        spinnerDiscardingStdin.fail(err)
+        spinnerDiscardingStdin.start()
+    });
 
 }
 
