@@ -1,13 +1,11 @@
-export const mongodbConBoilerplateCode = `import mongoose from "mongoose"
-
-const MONGODB_URI = process.env.MONGODB_URI;
+export const mongodbConnectionCode = `import mongoose from "mongoose";
 
 export const connectionDB = async () => {
     try{
-        await mongoose.connect(MONGODB_URI)
+        await mongoose.connect(process.env.MONGODB_URI);
     }catch (error) { 
-        console.error("MongoDB connection failed", error) 
-        process.exit(1)
+        console.error("MongoDB connection failed", error);
+        process.exit(1);
     }
 }`
 
