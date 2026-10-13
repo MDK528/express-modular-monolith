@@ -1,8 +1,8 @@
 export class ApiError extends Error {
     constructor(public statusCode: number, message: string) {
-        super(message)
-        this.statusCode = statusCode
-        Error.captureStackTrace(this, this.constructor)
+        super(message);
+        this.statusCode = statusCode;
+        Error.captureStackTrace(this, this.constructor);
     }
 
     static badRequest(message = "Bad request") {
@@ -22,7 +22,7 @@ export class ApiError extends Error {
         return new ApiError(404, message);
     }
     static unprocessable(message = "unprocessable"){
-        return new ApiError(422, message)
+        return new ApiError(422, message);
     }
 
     static internal(message = "Internal Server Error") {

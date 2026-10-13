@@ -107,6 +107,10 @@ await exec(`git commit -m "Initial commit"`, {
 
 spinnerDiscardingStdin.succeed(chalk.green("Packages successfully installed"));
 
-if(DB !== "none") { 
+if(DB !== "none" && (DB === "postgresql" || DB === "mysql")) {
   spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct DATABASE_URL in .env"))
+}
+
+if(DB !== "none" && DB === "mongodb") {
+  spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct MONGODB_URI in .env"))
 }

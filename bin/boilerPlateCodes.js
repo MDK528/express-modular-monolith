@@ -7,7 +7,7 @@ export const connectionDB = async () => {
         console.error("MongoDB connection failed", error);
         process.exit(1);
     }
-}`
+};`
 
 
 export const drizzlePostgresBoilerPlate = `import "dotenv/config";

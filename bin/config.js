@@ -50,8 +50,8 @@ export const jsBoilerPlateCodeSetUp = async (projectPath) => {
 
     const targetLine = 8
     const insertedData = `app.get("/", (req, res)=> {
-  res.json("Server is up and running")
-})`
+  res.json("Server is up and running");
+});`
 
     const data = await fs.readFile(appJsPath, "utf-8")
 
@@ -75,10 +75,10 @@ export const tsBoilerPlateCodeSetUp = async (projectPath) => {
     const targetLine = [2, 8]
 
     const insertedData = [
-    `import type { Express, Request, Response } from "express"`,
+    `import type { Express, Request, Response } from "express";`,
     `app.get("/", (req:Request, res:Response)=> {
-    res.json("Server is up and running")
-})`
+    res.json("Server is up and running");
+});`
     ]
 
     const data = await fs.readFile(appTsPath, "utf-8")
