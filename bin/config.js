@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzleConfigBoilerPlate, drizzlePostgresBoilerPlate, mongodbConnectionCode } from "./boilerPlateCodes.js";
+import { drizzleConfigBoilerPlate, drizzlePostgresCode, mongodbConnectionCode } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -140,7 +140,7 @@ export const addEnvBasedOnDBs = async (projectPath, DB) => {
 }
 
 export const dbSetUp = async (projectPath, DB, modelTool, language) => {
-
+    
     const configureMongoDbCode = async (dbPath, serverPath) => {
         const dbFullPath = path.join(projectPath, dbPath)
 
@@ -191,92 +191,81 @@ export const dbSetUp = async (projectPath, DB, modelTool, language) => {
         })
     }
 
+    const configurePostgresDrizzleCode = async (dbPath, serverPath) => {
+        const dbFullPath = path.join(projectPath, dbPath);
+
+        if(language === "typescript"){
+            const drizzleCode = drizzlePostgresCode.split(/\r?\n/)
+            drizzleCode.splice(4, 1, 'export const db = drizzle(process.env.DATABASE_URL!);')
+
+            const updatedDrizzleCode = drizzleCode.join("\n")
+
+            fs.writeFile(dbFullPath, updatedDrizzleCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        } else{
+            fs.writeFile(dbFullPath, drizzlePostgresCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
+        const serverFullPath = path.join(projectPath, serverPath);
+        const serverContent = await fs.readFile(serverFullPath, "utf-8");
+
+        const targetLine = [3, 9]
+        const insertedData = [`import { db } from "./common/config/db.js";
+import { sql } from "drizzle-orm";`,
+                    '        await db.execute(sql`select 1`);'];
+
+        const lines = serverContent.split(/\r?\n/);
+        lines.splice(targetLine[0] - 1, 0, insertedData[0])
+        lines.splice(targetLine[1], 1)
+        lines.splice(targetLine[1], 0, insertedData[1])
+
+        const updatedContent = lines.join("\n");
+
+        fs.writeFile(serverFullPath, updatedContent, "utf-8", (err)=>{
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+
+    }
+
     if (language === "javascript") {
+        const dbPath = "/src/common/config/db.js";
+        const serverPath = "/src/server.js"
+
         if (DB === "mongodb") {
-            await configureMongoDbCode("/src/common/config/db.js", "/src/server.js")
+            await configureMongoDbCode(dbPath, serverPath)
         }
 
         if (DB === "postgresql" && modelTool === "drizzle") {
-                const dbJsPath = path.join(projectPath, "/src/common/config/db.js")
-
-                fs.writeFile(dbJsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
-                    if (err) {
-                        spinnerDiscardingStdin.fail(err?.message)
-                        spinnerDiscardingStdin.start()
-                        return;
-                    }
-                })
-
-                const serverJsPath = path.join(projectPath, "/src/server.js");
-                const serverJsData = await fs.readFile(serverJsPath, "utf-8");
-
-                const targetLine = [3, 9]
-                const insertedData = [`import { db } from "./common/config/db.js";
-import { sql } from "drizzle-orm"`,
-                    '        await db.execute(sql`select 1`)'];
-
-                const lines = serverJsData.split(/\r?\n/);
-                lines.splice(targetLine[0] - 1, 0, insertedData[0])
-                lines.splice(targetLine[1], 1)
-                lines.splice(targetLine[1], 0, insertedData[1])
-
-
-
-                const updatedContent = lines.join("\n");
-
-                fs.writeFile(serverJsPath, updatedContent, "utf-8", (err)=>{
-                    if (err) {
-                        spinnerDiscardingStdin.fail(err?.message)
-                        spinnerDiscardingStdin.start()
-                        return;
-                    }
-                })
-
-                await configureDrizzleConfigFile(language, projectPath)
+            await configurePostgresDrizzleCode(dbPath, serverPath)
+            await configureDrizzleConfigFile(language, projectPath)
         }
     }
 
     if (language === "typescript") {
+        const dbPath = "/src/common/config/db.ts";
+        const serverPath = "/src/server.ts"
+
         if (DB === "mongodb") {
-            await configureMongoDbCode("/src/common/config/db.ts", "/src/server.ts")
+            await configureMongoDbCode(dbPath, serverPath)
         }
 
         if (DB === "postgresql" && modelTool === "drizzle") {
-            const dbTsPath = path.join(projectPath, "/src/common/config/db.ts")
-
-            fs.writeFile(dbTsPath, drizzlePostgresBoilerPlate, "utf-8", (err)=>{
-                if (err) {
-                    spinnerDiscardingStdin.fail(err?.message)
-                    spinnerDiscardingStdin.start()
-                    return;
-                }
-            })
-
-            const serverTsPath = path.join(projectPath, "/src/server.ts");
-            const serverTsData = await fs.readFile(serverTsPath, "utf-8");
-
-            const targetLine = [3, 9]
-            const insertedData = [`import { db } from "./common/config/db.js";
-import { sql } from "drizzle-orm"`,
-                '        await db.execute(sql`select 1`)'];
-
-            const lines = serverTsData.split(/\r?\n/);
-            lines.splice(targetLine[0] - 1, 0, insertedData[0])
-            lines.splice(targetLine[1], 1)
-            lines.splice(targetLine[1], 0, insertedData[1])
-
-
-
-            const updatedContent = lines.join("\n");
-
-            fs.writeFile(serverTsPath, updatedContent, "utf-8", (err)=>{
-                if (err) {
-                    spinnerDiscardingStdin.fail(err?.message)
-                    spinnerDiscardingStdin.start()
-                    return;
-                }
-            })
-
+            await configurePostgresDrizzleCode(dbPath, serverPath)
             await configureDrizzleConfigFile(language, projectPath)
         }
     }

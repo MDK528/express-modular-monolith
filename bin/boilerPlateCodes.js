@@ -10,7 +10,7 @@ export const connectionDB = async () => {
 };`
 
 
-export const drizzlePostgresBoilerPlate = `import "dotenv/config";
+export const drizzlePostgresCode = `import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 
