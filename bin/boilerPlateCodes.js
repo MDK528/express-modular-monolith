@@ -17,7 +17,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 export const db = drizzle(process.env.DATABASE_URL);`
 
 
-export const drizzleConfigBoilerPlate = `import "dotenv/config";
+export const drizzleConfigCode = `import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

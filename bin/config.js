@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzleConfigBoilerPlate, drizzlePostgresCode, mongodbConnectionCode } from "./boilerPlateCodes.js";
+import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -273,8 +273,11 @@ import { sql } from "drizzle-orm";`,
 
 export const configureDrizzleConfigFile = async (language, projectPath) => {
     if (language === "javascript") {
-        const line = drizzleConfigBoilerPlate.split("\n")
-        line.splice(8, 1, '     url: process.env.DATABASE_URL,')
+        const line = drizzleConfigCode.split("\n")
+        line.splice(5, 4,  `  schema: ["./src/modules/**/*.model.js"],
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,`)
 
         await fs.writeFile(path.join(projectPath, "drizzle.config.js"), line.join("\n"), "utf-8", (err) => {
             if (err) {
@@ -286,7 +289,7 @@ export const configureDrizzleConfigFile = async (language, projectPath) => {
     }
 
     if (language === "typescript") {
-        await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), drizzleConfigBoilerPlate, "utf-8", (err) => {
+        await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), drizzleConfigCode, "utf-8", (err) => {
             if (err) {
                 spinnerDiscardingStdin.fail(err?.message)
                 spinnerDiscardingStdin.start()
