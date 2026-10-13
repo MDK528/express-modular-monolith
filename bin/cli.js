@@ -9,7 +9,7 @@ import process from "node:process";
 import { projectName, language, DB, selectToolByDB, selectInstallWith } from "./cliQuestions.js";
 import { dbPackages, ORMscripts } from "./packages.js";
 import chalk from "chalk"
-import { addEnvBasedOnDBs, jsBoilerPlateCodeSetUp, dbBoilerCodeSetUp, tsBoilerPlateCodeSetUp, spinnerDiscardingStdin, configurePackageByDB  } from "./config.js";
+import { addEnvBasedOnDBs, jsBoilerPlateCodeSetUp, dbSetUp, tsBoilerPlateCodeSetUp, spinnerDiscardingStdin, configurePackageByDB  } from "./config.js";
 
 
 const exec = promisify(execCallback);
@@ -45,12 +45,12 @@ let lang;
 
 if (templatePath.includes("javascript")) {
   await jsBoilerPlateCodeSetUp(projectPath)
-  await dbBoilerCodeSetUp(projectPath, DB, modelTool, lang = "javascript")
+  await dbSetUp(projectPath, DB, modelTool, lang = "javascript")
 }
 
 if (templatePath.includes("typescript")) {
   await tsBoilerPlateCodeSetUp(projectPath)
-  await dbBoilerCodeSetUp(projectPath, DB, modelTool, lang = "typescript")
+  await dbSetUp(projectPath, DB, modelTool, lang = "typescript")
 
   await fs.rename(
     path.join(projectPath, "_tsconfig.json"),
