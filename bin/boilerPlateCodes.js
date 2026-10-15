@@ -17,6 +17,15 @@ import { drizzle } from "drizzle-orm/node-postgres";
 export const db = drizzle(process.env.DATABASE_URL);`
 
 
+export const prismaPostgresCode = `import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../prisma/generated/prisma/client.ts";
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+
+export const prisma = new PrismaClient({ adapter });`
+
+
 export const drizzleConfigCode = `import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
@@ -25,7 +34,7 @@ export default defineConfig({
   schema: ["./src/modules/**/*.model.ts"],
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env.DATABASE_URL!
   }
 });`
 

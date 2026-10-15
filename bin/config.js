@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode, prismaConfigCode } from "./boilerPlateCodes.js";
+import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode, prismaConfigCode, prismaPostgresCode } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -242,6 +242,55 @@ import { sql } from "drizzle-orm";`,
 
     }
 
+    const configurePostgresPrismaCode = async (dbPath, serverPath) => {
+        const dbFullPath = path.join(projectPath, dbPath);
+
+        if(language === "typescript"){
+            const prismaCode = prismaPostgresCode.split(/\r?\n/)
+            prismaCode.splice(4, 1, 'const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });')
+
+            const updatedPrismaCode = prismaCode.join("\n")
+
+            fs.writeFile(dbFullPath, updatedPrismaCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        } else{
+            fs.writeFile(dbFullPath, prismaPostgresCode, "utf-8", (err)=>{
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
+        const serverFullPath = path.join(projectPath, serverPath);
+        const serverContent = await fs.readFile(serverFullPath, "utf-8");
+
+        const targetLine = [3, 9]
+        const insertedData = [`import { prisma } from "./common/config/db.ts";`,
+                    '        await prisma.$connect();'];
+
+        const lines = serverContent.split(/\r?\n/);
+        lines.splice(targetLine[0] - 1, 0, insertedData[0])
+        lines.splice(targetLine[1], 1)
+        lines.splice(targetLine[1], 0, insertedData[1])
+
+        const updatedContent = lines.join("\n");
+
+        fs.writeFile(serverFullPath, updatedContent, "utf-8", (err)=>{
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+    }
+
     if (language === "javascript") {
         const dbPath = "/src/common/config/db.js";
         const serverPath = "/src/server.js"
@@ -256,6 +305,7 @@ import { sql } from "drizzle-orm";`,
         }
 
         if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePostgresPrismaCode(dbPath, serverPath)
             await configurePrismaConfigFile(language, projectPath)
         }
     }
@@ -274,6 +324,7 @@ import { sql } from "drizzle-orm";`,
         }
 
         if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePostgresPrismaCode(dbPath, serverPath)
             await configurePrismaConfigFile(language, projectPath)
         }
     }
@@ -310,8 +361,8 @@ export const configureDrizzleConfigFile = async (language, projectPath) => {
 export const configurePrismaConfigFile = async (language, projectPath) => {
     if (language === "javascript") {
         const line = prismaConfigCode.split("\n")
-        line.splice(5, 4,  `  dbCredentials: {
-    url: process.env.DATABASE_URL,`)
+        line.splice(8, 2,  `  datasource: {
+    url: process.env.DATABASE_URL`)
 
         await fs.writeFile(path.join(projectPath, "prisma.config.js"), line.join("\n"), "utf-8", (err) => {
             if (err) {
