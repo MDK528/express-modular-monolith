@@ -20,6 +20,7 @@ export const dbPackages = {
 
     prisma: {
       dependencies: {
+        "@prisma/adapter-pg": "^7.10.0",
         "@prisma/client": "^7.10.0",
         "pg": "^8.20.0"
       },

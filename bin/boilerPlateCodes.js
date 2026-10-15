@@ -19,7 +19,7 @@ export const db = drizzle(process.env.DATABASE_URL);`
 
 export const prismaPostgresCode = `import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../prisma/generated/prisma/client.ts";
+import { PrismaClient } from "../../../prisma/generated/client.ts";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
@@ -43,9 +43,9 @@ export const prismaConfigCode = `import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
-  schema: "src",
+  schema: ".",
   migrations: { 
-    path: "src/common/prisma/migrations" 
+    path: "prisma/migrations" 
   },
   datasource: { 
     url: process.env.DATABASE_URL!
@@ -54,7 +54,7 @@ export default defineConfig({
 
 export const prismaShcemaContent =  `generator client {
   provider = "prisma-client"
-  output   = "./generated/prisma"
+  output   = "./generated"
 }
 
 datasource db {
