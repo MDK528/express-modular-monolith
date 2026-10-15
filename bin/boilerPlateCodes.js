@@ -19,7 +19,7 @@ export const db = drizzle(process.env.DATABASE_URL);`
 
 export const prismaPostgresCode = `import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../../../prisma/generated/client.ts";
+import { PrismaClient } from "../../../prisma/generated/client.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 

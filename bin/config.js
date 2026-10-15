@@ -272,7 +272,7 @@ import { sql } from "drizzle-orm";`,
         const serverContent = await fs.readFile(serverFullPath, "utf-8");
 
         const targetLine = [3, 9]
-        const insertedData = [`import { prisma } from "./common/config/db.ts";`,
+        const insertedData = [`import { prisma } from "./common/config/db.js";`,
                     '        await prisma.$connect();'];
 
         const lines = serverContent.split(/\r?\n/);
