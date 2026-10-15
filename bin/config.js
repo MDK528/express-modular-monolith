@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode, prismaConfigCode, prismaPostgresCode } from "./boilerPlateCodes.js";
+import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode, prismaConfigCode, prismaPostgresCode, prismaShcemaContent } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -305,6 +305,7 @@ import { sql } from "drizzle-orm";`,
         }
 
         if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePrismaFolder(projectPath)
             await configurePostgresPrismaCode(dbPath, serverPath)
             await configurePrismaConfigFile(language, projectPath)
         }
@@ -324,6 +325,7 @@ import { sql } from "drizzle-orm";`,
         }
 
         if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePrismaFolder(projectPath)
             await configurePostgresPrismaCode(dbPath, serverPath)
             await configurePrismaConfigFile(language, projectPath)
         }
@@ -382,4 +384,18 @@ export const configurePrismaConfigFile = async (language, projectPath) => {
             }
         })
     }
+}
+
+export const configurePrismaFolder = async (projectPath) =>{
+    await fs.mkdir(`${projectPath}/prisma`, {recursive: true}, (err)=> {
+        if (err) {
+            spinnerDiscardingStdin.fail(err?.message)
+            spinnerDiscardingStdin.start()
+            return;
+        }
+    })
+
+    const prismaDirPath = path.join(projectPath, "/prisma")
+
+    await fs.writeFile(path.join(prismaDirPath, "schema.prisma"), prismaShcemaContent)
 }

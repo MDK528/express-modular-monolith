@@ -52,3 +52,11 @@ export default defineConfig({
   },
 });`
 
+export const prismaShcemaContent =  `generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}`
