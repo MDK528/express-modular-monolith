@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import ora from "ora";
-import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode } from "./boilerPlateCodes.js";
+import { drizzleConfigCode, drizzlePostgresCode, mongodbConnectionCode, prismaConfigCode } from "./boilerPlateCodes.js";
 
 
 export const spinnerDiscardingStdin = ora({
@@ -254,6 +254,10 @@ import { sql } from "drizzle-orm";`,
             await configurePostgresDrizzleCode(dbPath, serverPath)
             await configureDrizzleConfigFile(language, projectPath)
         }
+
+        if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePrismaConfigFile(language, projectPath)
+        }
     }
 
     if (language === "typescript") {
@@ -267,6 +271,10 @@ import { sql } from "drizzle-orm";`,
         if (DB === "postgresql" && modelTool === "drizzle") {
             await configurePostgresDrizzleCode(dbPath, serverPath)
             await configureDrizzleConfigFile(language, projectPath)
+        }
+
+        if(DB === "postgresql" && modelTool === "prisma"){
+            await configurePrismaConfigFile(language, projectPath)
         }
     }
 }
@@ -290,6 +298,32 @@ export const configureDrizzleConfigFile = async (language, projectPath) => {
 
     if (language === "typescript") {
         await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), drizzleConfigCode, "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+    }
+}
+
+export const configurePrismaConfigFile = async (language, projectPath) => {
+    if (language === "javascript") {
+        const line = prismaConfigCode.split("\n")
+        line.splice(5, 4,  `  dbCredentials: {
+    url: process.env.DATABASE_URL,`)
+
+        await fs.writeFile(path.join(projectPath, "prisma.config.js"), line.join("\n"), "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+    }
+
+    if (language === "typescript") {
+        await fs.writeFile(path.join(projectPath, "prisma.config.ts"), prismaConfigCode, "utf-8", (err) => {
             if (err) {
                 spinnerDiscardingStdin.fail(err?.message)
                 spinnerDiscardingStdin.start()
