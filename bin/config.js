@@ -397,5 +397,12 @@ export const configurePrismaFolder = async (projectPath) =>{
 
     const prismaDirPath = path.join(projectPath, "/prisma")
 
-    await fs.writeFile(path.join(prismaDirPath, "schema.prisma"), prismaShcemaContent)
+    await fs.writeFile(path.join(prismaDirPath, "schema.prisma"), prismaShcemaContent, "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+    })
+
 }

@@ -107,6 +107,10 @@ await exec(`git commit -m "Initial commit"`, {
 
 spinnerDiscardingStdin.succeed(chalk.green("Packages successfully installed"));
 
+if (DB === "postgresql" && modelTool === "prisma") {
+  console.log(chalk.gray(`Before starting your app, run '${packageManager} run db:generate' to generate the Prisma client.`));
+}
+
 if(DB !== "none" && (DB === "postgresql" || DB === "mysql")) {
   spinnerDiscardingStdin.info(chalk.yellow("Before starting your dev server set your correct DATABASE_URL in .env"))
 }
