@@ -364,6 +364,31 @@ import { sql } from "drizzle-orm";`,
                 }
         })
 
+        
+
+        if(language === "javascript"){
+            const modelFilePath = path.join(projectPath, "src/modules/auth/auth.model.js")
+            await fs.rename(modelFilePath, path.join(projectPath, "src/modules/auth/auth.model.prisma"), (err) => {
+                if (err){
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
+        if(language === "typescript"){
+            const modelFilePath = path.join(projectPath, "src/modules/auth/auth.model.ts")
+            await fs.rename(modelFilePath, path.join(projectPath, "src/modules/auth/auth.model.prisma"), (err) => {
+                if (err){
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
+        
     }
 
 
@@ -407,4 +432,3 @@ import { sql } from "drizzle-orm";`,
         }
     }
 }
-
