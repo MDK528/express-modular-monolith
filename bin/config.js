@@ -291,6 +291,82 @@ import { sql } from "drizzle-orm";`,
         })
     }
 
+    const configureDrizzleConfigFile = async (language, projectPath) => {
+    if (language === "javascript") {
+        const line = drizzleConfigCode.split("\n")
+        line.splice(5, 4,  `  schema: ["./src/modules/**/*.model.js"],
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,`)
+
+        await fs.writeFile(path.join(projectPath, "drizzle.config.js"), line.join("\n"), "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+    }
+
+    if (language === "typescript") {
+        await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), drizzleConfigCode, "utf-8", (err) => {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+    }
+    }
+
+    const configurePrismaConfigFile = async (language, projectPath) => {
+        if (language === "javascript") {
+            const line = prismaConfigCode.split("\n")
+            line.splice(8, 2,  `  datasource: {
+        url: process.env.DATABASE_URL`)
+
+            await fs.writeFile(path.join(projectPath, "prisma.config.js"), line.join("\n"), "utf-8", (err) => {
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+
+        if (language === "typescript") {
+            await fs.writeFile(path.join(projectPath, "prisma.config.ts"), prismaConfigCode, "utf-8", (err) => {
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+            })
+        }
+    }
+
+    const configurePrismaFolder = async (projectPath) =>{
+        await fs.mkdir(`${projectPath}/prisma`, {recursive: true}, (err)=> {
+            if (err) {
+                spinnerDiscardingStdin.fail(err?.message)
+                spinnerDiscardingStdin.start()
+                return;
+            }
+        })
+
+        const prismaDirPath = path.join(projectPath, "/prisma")
+
+        await fs.writeFile(path.join(prismaDirPath, "schema.prisma"), prismaShcemaContent, "utf-8", (err) => {
+                if (err) {
+                    spinnerDiscardingStdin.fail(err?.message)
+                    spinnerDiscardingStdin.start()
+                    return;
+                }
+        })
+
+    }
+
+
     if (language === "javascript") {
         const dbPath = "/src/common/config/db.js";
         const serverPath = "/src/server.js"
@@ -332,77 +408,3 @@ import { sql } from "drizzle-orm";`,
     }
 }
 
-export const configureDrizzleConfigFile = async (language, projectPath) => {
-    if (language === "javascript") {
-        const line = drizzleConfigCode.split("\n")
-        line.splice(5, 4,  `  schema: ["./src/modules/**/*.model.js"],
-  dialect: "postgresql",
-  dbCredentials: {
-    url: process.env.DATABASE_URL,`)
-
-        await fs.writeFile(path.join(projectPath, "drizzle.config.js"), line.join("\n"), "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
-    }
-
-    if (language === "typescript") {
-        await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), drizzleConfigCode, "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
-    }
-}
-
-export const configurePrismaConfigFile = async (language, projectPath) => {
-    if (language === "javascript") {
-        const line = prismaConfigCode.split("\n")
-        line.splice(8, 2,  `  datasource: {
-    url: process.env.DATABASE_URL`)
-
-        await fs.writeFile(path.join(projectPath, "prisma.config.js"), line.join("\n"), "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
-    }
-
-    if (language === "typescript") {
-        await fs.writeFile(path.join(projectPath, "prisma.config.ts"), prismaConfigCode, "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-        })
-    }
-}
-
-export const configurePrismaFolder = async (projectPath) =>{
-    await fs.mkdir(`${projectPath}/prisma`, {recursive: true}, (err)=> {
-        if (err) {
-            spinnerDiscardingStdin.fail(err?.message)
-            spinnerDiscardingStdin.start()
-            return;
-        }
-    })
-
-    const prismaDirPath = path.join(projectPath, "/prisma")
-
-    await fs.writeFile(path.join(prismaDirPath, "schema.prisma"), prismaShcemaContent, "utf-8", (err) => {
-            if (err) {
-                spinnerDiscardingStdin.fail(err?.message)
-                spinnerDiscardingStdin.start()
-                return;
-            }
-    })
-
-}
