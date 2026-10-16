@@ -50,10 +50,6 @@ try {
         value: "postgresql"
       },
       {
-        name: "MySQL",
-        value: "mysql"
-      },
-      {
         name: "MongoDB",
         value: "mongodb"
       },
